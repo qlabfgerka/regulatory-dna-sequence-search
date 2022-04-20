@@ -38,7 +38,7 @@ public class BranchAndBoundSearch {
         score += minHammings;
 
         if (current.length() == l) {
-            if (score < best.getScore() || best.getScore() == -1) {
+            if (minHammings < best.getHamming() || best.getScore() == -1) {
                 best.setConsensus(current);
                 best.setScore(score);
                 best.setHamming(minHammings);
