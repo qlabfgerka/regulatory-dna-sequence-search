@@ -3,19 +3,11 @@ package inc.premzl.DNA.SequenceSearch;
 import inc.premzl.Models.Consensus;
 import org.paukov.combinatorics3.Generator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GreedySearch {
-    public static List<String> getKmers(String sequence, int length) {
-        List<String> kmers = new ArrayList<>();
-        for (int i = 0; i < sequence.length() - length + 1; i++) {
-            kmers.add(sequence.substring(i, i + length));
-        }
-        return kmers;
-    }
 
     public static Consensus generateProfiles(List<List<String>> kmers, int l) {
         final Consensus[] consensus = {new Consensus()};
@@ -31,7 +23,7 @@ public class GreedySearch {
         HashMap<String, Integer> bases;
         for (int i = 0; i < l; i++) {
             bases = new HashMap<>();
-            
+
             for (String lmer : lmers) {
                 bases.put(String.valueOf(lmer.charAt(i)),
                         bases.getOrDefault(String.valueOf(lmer.charAt(i)), 0) + 1);
