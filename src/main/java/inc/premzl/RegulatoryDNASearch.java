@@ -8,7 +8,7 @@ import java.util.Objects;
 
 import static inc.premzl.DNA.DNAOperations.getKmers;
 import static inc.premzl.DNA.DNAOperations.splitSequence;
-import static inc.premzl.DNA.SequenceSearch.BranchAndBoundSearch.*;
+import static inc.premzl.DNA.SequenceSearch.BranchAndBoundSearch.generateConsensuses;
 import static inc.premzl.DNA.SequenceSearch.GreedySearch.generateProfiles;
 import static inc.premzl.Files.FileOperations.readFile;
 
@@ -24,13 +24,10 @@ public class RegulatoryDNASearch {
             Consensus consensus = generateProfiles(kmers, Integer.parseInt(args[4]));
             System.out.println(consensus.getConsensus() + " " + consensus.getScore());
         } else if (Objects.equals(args[0], "bnb")) {
-            System.out.println(getHamming("ATTGTCAA", "ACTCTCAC"));
-            List<String> consensuses = generateConsensuses(Integer.parseInt(args[4]));
+            Consensus consensus = new Consensus(-1);
+            generateConsensuses("", Integer.parseInt(args[4]), 0, consensus, sequences);
 
-            /*for (String consensus : consensuses) {
-                System.out.println(consensus);
-            }*/
-            getBestConsensus(kmers, consensuses);
+            System.out.println(consensus.getConsensus() + " " + consensus.getHamming());
         } else throw new Exception("Invalid algorithm argument");
     }
 }

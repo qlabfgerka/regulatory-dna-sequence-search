@@ -1,9 +1,11 @@
 package inc.premzl.DNA.SequenceSearch;
 
-import org.paukov.combinatorics3.Generator;
+import inc.premzl.Models.Consensus;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static inc.premzl.DNA.DNAOperations.getKmers;
 
 public class BranchAndBoundSearch {
     public static int getHamming(String first, String second) {
@@ -18,47 +20,37 @@ public class BranchAndBoundSearch {
         return hamming;
     }
 
-    public static List<String> generateConsensuses(int l) {
-        return Generator
-                .permutation("T", "C", "A", "G").withRepetitions(l)
-                .stream()
-                .map(nmer -> String.join("", nmer))
-                .toList();
-    }
+    public static Consensus generateConsensuses(String current, int l, int score, Consensus best, List<String> sequences) {
+        if (score >= best.getScore() && best.getScore() != -1) return best;
 
-    public static void getBestConsensus(List<List<String>> kmers, List<String> consensuses) {
-        int index, min, hamming;
-        List<Integer> currentHammings;
-        List<List<Integer>> hammings = new ArrayList<>();
-
-        for (String consensus : consensuses) {
-            System.out.print("CONSENSUS: " + consensus + " ");
-            index = -1;
-            min = consensus.length() + 1;
-            currentHammings = new ArrayList<>();
-            for (List<String> kmer : kmers) {
-                for (int i = 0; i < kmer.size(); i++) {
-                    hamming = getHamming(kmer.get(i), consensus);
-                    System.out.print(kmer.get(i) + " (" + hamming + "," + min + ")\t");
-                    if (hamming < min) {
-                        min = hamming;
-                        index = i;
-                    }
-                }
-                currentHammings.add(index);
-                System.out.print(index + " " + kmer.get(index) + "\t\t");
+        List<List<String>> kmers = new ArrayList<>();
+        for (String sequence : sequences) kmers.add(getKmers(sequence, current.length()));
+        int minHamming, hamming, minHammings = 0;
+        for (List<String> kmer : kmers) {
+            minHamming = Integer.MAX_VALUE;
+            for (String lmer : kmer) {
+                hamming = getHamming(lmer, current);
+                if (hamming < minHamming) minHamming = hamming;
             }
-            hammings.add(currentHammings);
-            System.out.println();
-        }
-        System.out.println(hammings);
-
-        min = Integer.MAX_VALUE;
-        for (int i = 0; i < hammings.size(); i++) {
-            if (hammings.get(i).get(0) + hammings.get(i).get(1) < min)
-                min = hammings.get(i).get(0) + hammings.get(i).get(1);
+            minHammings += minHamming;
         }
 
-        System.out.println(min);
+        score += minHammings;
+
+        if (current.length() == l) {
+            if (score < best.getScore() || best.getScore() == -1) {
+                best.setConsensus(current);
+                best.setScore(score);
+                best.setHamming(minHammings);
+            }
+            return best;
+        }
+
+        generateConsensuses(current + "A", l, score, best, sequences);
+        generateConsensuses(current + "G", l, score, best, sequences);
+        generateConsensuses(current + "T", l, score, best, sequences);
+        generateConsensuses(current + "C", l, score, best, sequences);
+
+        return best;
     }
 }
